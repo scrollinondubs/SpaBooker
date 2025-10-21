@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SystemMatchAi - Spa Scheduling Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .logo {
+            display: inline-block;
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+        }
+
+        .icon.schedule { background: #4CAF50; }
+        .icon.calendar { background: #2196F3; }
+        .icon.staff { background: #FF9800; }
+        .icon.services { background: #9C27B0; }
+        .icon.analytics { background: #F44336; }
+
+        .service-item, .staff-item, .booking-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .service-item:hover, .staff-item:hover, .booking-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .service-details, .staff-details, .booking-details {
+            flex: 1;
+        }
+
+        .service-name, .staff-name, .client-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .service-price, .staff-role, .booking-time {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status.available { background: #e8f5e8; color: #2e7d32; }
+        .status.busy { background: #fff3e0; color: #f57c00; }
+        .status.off { background: #ffebee; color: #c62828; }
+        .status.confirmed { background: #e3f2fd; color: #1565c0; }
+        .status.pending { background: #fff8e1; color: #ef6c00; }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9ff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .calendar-day.today {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day.has-bookings::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 6px;
+            height: 6px;
+            background: #ff4757;
+            border-radius: 50%;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .booking-form {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .booking-form.active {
+            display: flex;
+        }
+
+        .form-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            display: none;
+        }
+
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">SystemMatchAi</div>
+            <div class="tagline">AI-Powered Spa Scheduling Dashboard</div>
+        </header>
+
+        <div class="dashboard">
+            <!-- Services Section -->
+            <div class="card">
+                <h3><span class="icon services">S</span> Services</h3>
+                <div class="service-item">
+                    <div class="service-details">
+                        <div class="service-name">Deep Tissue Massage</div>
+                        <div class="service-price">$80 - 60 min</div>
+                    </div>
+                    <div class="status available">Available</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-details">
+                        <div class="service-name">Swedish Massage</div>
+                        <div class="service-price">$70 - 50 min</div>
+                    </div>
+                    <div class="status available">Available</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-details">
+                        <div class="service-name">Hot Stone Therapy</div>
+                        <div class="service-price">$90 - 75 min</div>
+                    </div>
+                    <div class="status busy">Busy</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-details">
+                        <div class="service-name">Aromatherapy</div>
+                        <div class="service-price">$65 - 45 min</div>
+                    </div>
+                    <div class="status available">Available</div>
+                </div>
+            </div>
+
+            <!-- Calendar & Bookings Section -->
+            <div class="card">
+                <h3><span class="icon calendar">C</span> Today's Schedule</h3>
+                <div class="calendar-grid">
+                    <div class="calendar-day">1</div>
+                    <div class="calendar-day">2</div>
+                    <div class="calendar-day">3</div>
+                    <div class="calendar-day">4</div>
+                    <div class="calendar-day">5</div>
+                    <div class="calendar-day">6</div>
+                    <div class="calendar-day">7</div>
+                    <div class="calendar-day">8</div>
+                    <div class="calendar-day">9</div>
+                    <div class="calendar-day">10</div>
+                    <div class="calendar-day">11</div>
+                    <div class="calendar-day">12</div>
+                    <div class="calendar-day">13</div>
+                    <div class="calendar-day">14</div>
+                    <div class="calendar-day">15</div>
+                    <div class="calendar-day">16</div>
+                    <div class="calendar-day">17</div>
+                    <div class="calendar-day">18</div>
+                    <div class="calendar-day">19</div>
+                    <div class="calendar-day">20</div>
+                    <div class="calendar-day today has-bookings">21</div>
+                    <div class="calendar-day has-bookings">22</div>
+                    <div class="calendar-day">23</div>
+                    <div class="calendar-day has-bookings">24</div>
+                    <div class="calendar-day">25</div>
+                    <div class="calendar-day">26</div>
+                    <div class="calendar-day has-bookings">27</div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 15px; color: #333;">Upcoming Bookings</h4>
+                    <div class="booking-item">
+                        <div class="booking-details">
+                            <div class="client-name">Emily Johnson</div>
+                            <div class="booking-time">10:00 AM - Deep Tissue Massage</div>
+                        </div>
+                        <div class="status confirmed">Confirmed</div>
+                    </div>
+                    <div class="booking-item">
+                        <div class="booking-details">
+                            <div class="client-name">Sarah Miller</div>
+                            <div class="booking-time">2:00 PM - Swedish Massage</div>
+                        </div>
+                        <div class="status pending">Pending</div>
+                    </div>
+                    <div class="booking-item">
+                        <div class="booking-details">
+                            <div class="client-name">Michael Brown</div>
+                            <div class="booking-time">4:30 PM - Hot Stone Therapy</div>
+                        </div>
+                        <div class="status confirmed">Confirmed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff & Analytics Section -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="card">
+                    <h3><span class="icon staff">T</span> Staff Schedule</h3>
+                    <div class="staff-item">
+                        <div class="staff-details">
+                            <div class="staff-name">Lisa Thompson</div>
+                            <div class="staff-role">Senior Therapist</div>
+                        </div>
+                        <div class="status available">Available</div>
+                    </div>
+                    <div class="staff-item">
+                        <div class="staff-details">
+                            <div class="staff-name">Mark Rodriguez</div>
+                            <div class="staff-role">Massage Therapist</div>
+                        </div>
+                        <div class="status busy">Busy</div>
+                    </div>
+                    <div class="staff-item">
+                        <div class="staff-details">
+                            <div class="staff-name">Anna Chen</div>
+                            <div class="staff-role">Spa Specialist</div>
+                        </div>
+                        <div class="status available">Available</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="icon analytics">A</span> Analytics</h3>
+                    <div class="analytics-grid">
+                        <div class="metric">
+                            <div class="metric-value">87%</div>
+                            <div class="metric-label">Fill Rate</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">1.2hr</div>
+                            <div class="metric-label">Time Saved</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">15%</div>
+                            <div class="metric-label">No-Show Rate</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">92%</div>
+                            <div class="metric-label">Satisfaction</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="floating-btn" onclick="openBookingForm()">+</button>
+
+    <!-- Booking Form Modal -->
+    <div class="booking-form" id="bookingForm">
+        <div class="form-content">
+            <h2 style="margin-bottom: 20px; color: #333;">New Booking</h2>
+            <form id="newBookingForm">
+                <div class="form-group">
+                    <label for="clientName">Client Name</label>
+                    <input type="text" id="clientName" name="clientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientPhone">Phone Number</label>
+                    <input type="tel" id="clientPhone" name="clientPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="serviceType">Service</label>
+                    <select id="serviceType" name="serviceType" required>
+                        <option value="">Select a service</option>
+                        <option value="deep-tissue">Deep Tissue Massage - $80</option>
+                        <option value="swedish">Swedish Massage - $70</option>
+                        <option value="hot-stone">Hot Stone Therapy - $90</option>
+                        <option value="aromatherapy">Aromatherapy - $65</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="therapist">Preferred Therapist</label>
+                    <select id="therapist" name="therapist">
+                        <option value="">Any available</option>
+                        <option value="lisa">Lisa Thompson</option>
+                        <option value="mark">Mark Rodriguez</option>
+                        <option value="anna">Anna Chen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bookingDate">Date</label>
+                    <input type="date" id="bookingDate" name="bookingDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookingTime">Time</label>
+                    <select id="bookingTime" name="bookingTime" required>
+                        <option value="">Select time</option>
+                        <option value="09:00">9:00 AM</option>
+                        <option value="10:00">10:00 AM</option>
+                        <option value="11:00">11:00 AM</option>
+                        <option value="12:00">12:00 PM</option>
+                        <option value="13:00">1:00 PM</option>
+                        <option value="14:00">2:00 PM</option>
+                        <option value="15:00">3:00 PM</option>
+                        <option value="16:00">4:00 PM</option>
+                        <option value="17:00">5:00 PM</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Special Notes</label>
+                    <textarea id="notes" name="notes" rows="3" placeholder="Any special requests or notes..."></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeBookingForm()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Schedule Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        Appointment scheduled successfully!
+    </div>
+
+    <script>
+        // Mock data for dynamic content
+        let bookings = [
+            { id: 1, client: 'Emily Johnson', time: '10:00 AM', service: 'Deep Tissue Massage', status: 'confirmed' },
+            { id: 2, client: 'Sarah Miller', time: '2:00 PM', service: 'Swedish Massage', status: 'pending' },
+            { id: 3, client: 'Michael Brown', time: '4:30 PM', service: 'Hot Stone Therapy', status: 'confirmed' }
+        ];
+
+        let staff = [
+            { id: 1, name: 'Lisa Thompson', role: 'Senior Therapist', status: 'available' },
+            { id: 2, name: 'Mark Rodriguez', role: 'Massage Therapist', status: 'busy' },
+            { id: 3, name: 'Anna Chen', role: 'Spa Specialist', status: 'available' }
+        ];
+
+        // Initialize the application
+        function init() {
+            updateAnalytics();
+            setMinDate();
+            
+            // Add event listeners
+            document.getElementById('newBookingForm').addEventListener('submit', handleBookingSubmission);
+            
+            // Auto-update staff status every 30 seconds (simulation)
+            setInterval(updateStaffStatus, 30000);
+            
+            // Show welcome message
+            setTimeout(() => {
+                showNotification('SystemMatchAi Dashboard Ready!', 'info');
+            }, 1000);
+        }
+
+        // Open booking form
+        function openBookingForm() {
+            document.getElementById('bookingForm').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close booking form
+        function closeBookingForm() {
+            document.getElementById('bookingForm').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            document.getElementById('newBookingForm').reset();
+        }
+
+        // Handle booking form submission
+        function handleBookingSubmission(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const bookingData = {
+                id: bookings.length + 1,
+                client: formData.get('clientName'),
+                phone: formData.get('clientPhone'),
+                service: formData.get('serviceType'),
+                therapist: formData.get('therapist'),
+                date: formData.get('bookingDate'),
+                time: formData.get('bookingTime'),
+                notes: formData.get('notes'),
+                status: 'confirmed'
+            };
+
+            // Add to bookings array
+            bookings.push(bookingData);
+            
+            // Update UI
+            updateBookingsDisplay();
+            updateAnalytics();
+            
+            // Close form and show success
+            closeBookingForm();
+            showNotification('Appointment scheduled successfully!');
+            
+            // Simulate AI processing
+            setTimeout(() => {
+                showNotification('Confirmation sent to client via WhatsApp');
+            }, 2000);
+        }
+
+        // Update bookings display
+        function updateBookingsDisplay() {
+            // This would update the bookings section in a real app
+            // For demo purposes, we'll just log it
+            console.log('Bookings updated:', bookings);
+        }
+
+        // Update analytics
+        function updateAnalytics() {
+            const fillRate = Math.round((bookings.length / 20) * 100); // Assuming 20 slots per day
+            const timeSaved = (bookings.length * 0.1).toFixed(1); // 6 minutes saved per booking
+            
+            // Update metrics display
+            document.querySelector('.metric-value').textContent = fillRate + '%';
+        }
+
+        // Set minimum date for booking to today
+        function setMinDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').min = today;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification show';
+            
+            if (type === 'info') {
+                notification.style.background = '#2196F3';
+            } else {
+                notification.style.background = '#4CAF50';
+            }
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Simulate staff status updates
+        function updateStaffStatus() {
+            staff.forEach((member, index) => {
+                // Randomly change status for demo
+                const statuses = ['available', 'busy', 'available'];
+                const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+                staff[index].status = randomStatus;
+            });
+            
+            // Update UI would happen here
+            console.log('Staff status updated:', staff);
+        }
+
+        // Handle calendar day clicks
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarDays = document.querySelectorAll('.calendar-day');
+            calendarDays.forEach(day => {
+                day.addEventListener('click', function() {
+                    // Remove previous selection
+                    calendarDays.forEach(d => d.classList.remove('selected'));
+                    
+                    // Add selection to clicked day
+                    this.classList.add('selected');
+                    
+                    // In a real app, this would load bookings for that day
+                    showNotification(`Viewing schedule for day ${this.textContent}`, 'info');
+                });
+            });
+        });
+
+        // Handle service availability filtering
+        function filterServices(status) {
+            const services = document.querySelectorAll('.service-item');
+            services.forEach(service => {
+                const serviceStatus = service.querySelector('.status').textContent.toLowerCase();
+                if (status === 'all' || serviceStatus === status) {
+                    service.style.display = 'flex';
+                } else {
+                    service.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const bookingForm = document.getElementById('bookingForm');
+            if (e.target === bookingForm) {
+                closeBookingForm();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeBookingForm();
+            }
+            if (e.key === 'n' && e.ctrlKey) {
+                e.preventDefault();
+                openBookingForm();
+            }
+        });
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const metrics = document.querySelectorAll('.metric-value');
+            if (metrics.length > 2) {
+                // Update satisfaction score with small variations
+                const currentSatisfaction = parseInt(metrics[3].textContent);
+                const newSatisfaction = Math.max(85, Math.min(98, currentSatisfaction + Math.floor(Math.random() * 3) - 1));
+                metrics[3].textContent = newSatisfaction + '%';
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
