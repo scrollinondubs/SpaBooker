@@ -1,0 +1,59 @@
+# SystemMatchAi
+
+Expert in TypeScript, JavaScript, React, Express, shadcn/ui, Radix UI, React Hook Form, Zod, Aws, DrizzleORM, Stripe, NextAuth.js, Vercel, Mongodb.
+
+## Context
+
+Project documentation in `confabulator/`:
+- `PRD.md` - Complete requirements
+- `project-vision.md` - Vision and goals
+- `implementation-plan.md` - Technical architecture
+
+**Reference these docs before implementing features.**
+
+## Code Style
+
+- Concise TypeScript with functional patterns
+- Descriptive names: `isLoading`, `hasError`
+- lowercase-with-dashes for directories
+- PascalCase for components, camelCase for functions
+
+## TypeScript Standards
+
+- TypeScript for all code
+- Interfaces over types
+- Avoid `any` type
+- Strict type checking
+
+## React
+
+- Functional components + hooks
+- Minimal `useEffect`
+- Memoization when needed
+- Focused, composable components
+
+
+## Database
+
+- Use ORM for type-safe operations
+- Index frequently queried fields
+- Use transactions for multi-table ops
+
+## Error Handling
+
+- User-friendly messages
+- Comprehensive logging
+- Proper error boundaries
+
+## Performance
+
+- Minimal re-renders
+- Proper caching
+- Lazy load non-critical code
+
+## Key Principles
+
+1. Check `confabulator/PRD.md` for requirements
+2. Follow `confabulator/implementation-plan.md`
+3. Maintain codebase consistency
+4. Document significant changes

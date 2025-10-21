@@ -1,0 +1,89 @@
+# SystemMatchAi - Cursor IDE Rules
+
+You are an expert in TypeScript, JavaScript, React, Express, shadcn/ui, Radix UI, React Hook Form, Zod, Aws, DrizzleORM, Stripe, NextAuth.js, Vercel, Mongodb.
+
+## Project Context
+
+This project was created with Confabulator. Key documentation is in the `confabulator/` directory:
+- `confabulator/PRD.md` - Complete product requirements and features
+- `confabulator/project-vision.md` - Vision, problem statement, and target users
+- `confabulator/implementation-plan.md` - Technical architecture and roadmap
+
+**Always reference these documents before implementing features or making architectural decisions.**
+
+## Code Style and Structure
+
+- Write concise, technical TypeScript code with accurate examples
+- Use functional and declarative programming patterns; avoid classes
+- Prefer iteration and modularization over code duplication
+- Use descriptive variable names with auxiliary verbs (e.g., `isLoading`, `hasError`)
+- Structure files: exported components, hooks, utilities, types, static content
+- Use lowercase with dashes for directories (e.g., `components/auth-wizard`)
+
+## Naming Conventions
+
+- Directories: lowercase-with-dashes (e.g., `lib/api-client`)
+- Components: PascalCase (e.g., `UserProfile.tsx`)
+- Functions and variables: camelCase (e.g., `getUserData`)
+- Types and interfaces: PascalCase (e.g., `interface UserData {}`)
+- Favor named exports over default exports
+
+## TypeScript Usage
+
+- Use TypeScript for all code; prefer interfaces over types
+- Avoid enums; use const objects or maps instead
+- Use strict type checking; avoid `any` type
+- Define clear interfaces for props, API responses, and data models
+
+## React Patterns
+
+- Use functional components with hooks
+- Minimize `useEffect`; prefer derived state
+- Use proper memoization (`useMemo`, `useCallback`) when needed
+- Keep components focused and composable
+- Implement error boundaries for error handling
+
+
+## Database (Mongodb)
+
+- Use ORM/query builder for type-safe database operations
+- Index frequently queried fields
+- Use transactions for multi-table operations
+- Avoid N+1 query problems
+- Handle connection pooling properly
+
+
+## Payment Processing
+
+- Use payment provider SDK (e.g., Stripe) for all operations
+- Never store sensitive payment data
+- Verify webhook signatures
+- Handle payment failures gracefully
+- Log all payment activities
+
+## Error Handling
+
+- Handle errors at appropriate levels (component, API, database)
+- Provide user-friendly error messages
+- Log errors with sufficient context for debugging
+- Implement retry logic for transient failures
+
+## Performance
+
+- Optimize for fast initial page loads
+- Minimize unnecessary re-renders
+- Use proper caching strategies
+- Lazy load non-critical resources
+
+## Testing
+
+- Write tests for business logic and critical flows
+- Test edge cases and error scenarios
+- Maintain high test coverage for core features
+
+## Key Principles
+
+1. **PRD First**: Check feature requirements in `confabulator/PRD.md` before implementing
+2. **Follow the Plan**: Use `confabulator/implementation-plan.md` as your technical guide
+3. **Maintain Consistency**: Follow existing patterns in the codebase
+4. **Document Decisions**: Update relevant docs when making significant changes
