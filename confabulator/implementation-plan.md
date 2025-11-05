@@ -17,29 +17,58 @@ The MVP includes automated scheduling across social media platforms, detailed se
 
 ### Tech Stack Recommendations
 
-- **Frontend:** React.js
-  - *Rationale:* React’s component-based architecture facilitates building responsive web interfaces for both web and mobile platforms.
-  
-- **Backend/API:** Node.js with Express
-  - *Rationale:* Node.js provides a scalable and efficient environment for handling numerous API requests, essential for real-time scheduling.
-  
-- **Database:** MongoDB
-  - *Rationale:* MongoDB’s flexible schema is ideal for handling varied data structures related to scheduling and user interactions.
-  
-- **Authentication:** Auth0
-  - *Rationale:* Auth0 provides secure, scalable authentication with minimal setup, enhancing security and user experience.
-  
-- **Hosting/Deployment:** AWS with Docker
-  - *Rationale:* AWS offers scalable and reliable infrastructure, while Docker ensures consistent environments across development and production.
-  
+- **Frontend:** Next.js 14+ (App Router) with TypeScript
+  - *Rationale:* Next.js provides SSR/SSG out-of-the-box, API routes eliminating separate backend complexity, file-based routing, built-in optimization, and perfect Vercel deployment integration. TypeScript ensures type safety and better developer experience.
+
+- **UI Components:** shadcn/ui + Radix UI
+  - *Rationale:* shadcn/ui provides accessible, customizable components built on Radix UI primitives, ensuring consistent design system and excellent UX.
+
+- **Forms & Validation:** React Hook Form + Zod
+  - *Rationale:* React Hook Form offers performant form handling with minimal re-renders, while Zod provides type-safe runtime validation that integrates seamlessly with TypeScript.
+
+- **Backend/API:** Next.js API Routes (or separate Express if microservices needed)
+  - *Rationale:* Next.js API routes provide serverless functions for most use cases, reducing infrastructure complexity. Express can be added later if microservices architecture is required.
+
+- **Database:** PostgreSQL (Neon or Supabase managed hosting)
+  - *Rationale:* PostgreSQL provides ACID compliance essential for preventing double-bookings, superior time-based query performance, native support for date/time operations with timezones, and relational data model perfect for staff schedules and appointment conflicts. MongoDB's flexible schema is unnecessary for this structured domain.
+
+- **ORM:** DrizzleORM
+  - *Rationale:* Type-safe ORM that works beautifully with PostgreSQL and TypeScript, providing excellent developer experience with minimal overhead.
+
+- **Authentication:** NextAuth.js v5
+  - *Rationale:* Free, open-source authentication with full control over flows. Zero cost at any scale vs Auth0's $240-1,400/month. Perfect Next.js integration with support for OAuth, email, and credentials.
+
+- **State Management:** TanStack Query + Zustand
+  - *Rationale:* TanStack Query (React Query) handles server state, caching, and real-time updates efficiently. Zustand provides simple client state management when needed, avoiding Redux boilerplate while maintaining excellent DX.
+
+- **Hosting/Deployment:** Vercel
+  - *Rationale:* Zero DevOps overhead, generous free tier ($0-20/month), instant deployments with preview environments, built for Next.js with edge functions for global performance. Dramatically simpler and more cost-effective than AWS + Docker ($100-200/month + DevOps complexity).
+
 - **Additional Services:**
-  - **Messaging APIs (Twilio, SendGrid):** For sending confirmations and reminders.
-  - *Rationale:* These services ensure reliable and scalable communication.
+  - **Messaging APIs:** Twilio (SMS), SendGrid (Email) for confirmations and reminders
+  - **Payments:** Stripe (when needed for future features)
+  - *Rationale:* Industry-standard services ensuring reliable and scalable communication.
+
+### Cost Analysis
+
+**Monthly Infrastructure Costs:**
+- **MVP Phase:** $0-45/month
+  - Vercel: $0-20 (free tier generous for small scale)
+  - Neon/Supabase: $0-25 (free tier adequate for 100 spas)
+  - NextAuth.js: $0
+
+- **Growth Phase (500+ spas):** $100-200/month
+  - Still significantly lower than traditional AWS + Auth0 stack ($400-600/month)
+
+This cost structure aligns with small spa budget constraints and allows bootstrapping without infrastructure investment.
   
 ### Architecture Patterns
-- **RESTful API design:** For clear separation of concerns and ease of integration.
-- **Server-side rendering:** Enhances SEO and initial load performance for the web application.
-- **State management using Redux:** Ensures consistent state across components, crucial for real-time updates.
+- **Next.js App Router:** Modern React Server Components architecture for optimal performance and developer experience.
+- **RESTful API design:** Next.js API routes provide clear separation of concerns and ease of integration.
+- **Server-side rendering & Static Generation:** Next.js provides SSR/SSG out-of-the-box, enhancing SEO and initial load performance.
+- **Server state with TanStack Query:** Handles caching, real-time updates, and optimistic updates for server data without Redux complexity.
+- **Type-safe database queries:** DrizzleORM ensures compile-time type safety between database schema and application code.
+- **Progressive Web App (PWA):** Mobile-first responsive design with PWA capabilities for app-like experience without native development.
 
 ## User Stories
 
@@ -180,13 +209,74 @@ The MVP includes automated scheduling across social media platforms, detailed se
 **Goal:** Establish technical infrastructure needed to support feature development
 
 **Tasks:**
-- **Project Initialization:** Set up repository and initial project structure.
-- **Database Schema Design:** Create initial database schema and setup.
-- **Authentication Implementation:** Integrate Auth0 and configure user roles.
-- **Deployment Pipeline:** Set up CI/CD using Docker and AWS.
-- **Error Handling & Logging:** Implement basic error logging and handling.
 
-[Be specific with tasks and acceptance criteria]
+#### Task 4.1: Project Initialization
+**Description:** Set up Next.js 14+ project with TypeScript, configure shadcn/ui, and establish project structure.
+
+**Acceptance Criteria:**
+- [ ] Next.js App Router project initialized with TypeScript
+- [ ] shadcn/ui + Radix UI configured with theme
+- [ ] ESLint and Prettier configured for code quality
+- [ ] Git repository initialized with proper .gitignore
+
+**Dependencies:** None
+
+**Estimated Effort:** 8 hours
+
+#### Task 4.2: Database Schema Design & Setup
+**Description:** Design PostgreSQL schema for appointments, staff, services, and users. Set up Neon/Supabase database and DrizzleORM.
+
+**Acceptance Criteria:**
+- [ ] PostgreSQL database provisioned on Neon/Supabase
+- [ ] DrizzleORM configured with TypeScript types
+- [ ] Core tables created: users, staff, services, appointments, availability
+- [ ] Database migrations setup
+- [ ] ACID transaction patterns documented
+
+**Dependencies:** None
+
+**Estimated Effort:** 15 hours
+
+#### Task 4.3: Authentication Implementation
+**Description:** Integrate NextAuth.js v5 with email/OAuth providers and configure user roles (admin, staff, customer).
+
+**Acceptance Criteria:**
+- [ ] NextAuth.js v5 configured with PostgreSQL adapter
+- [ ] Email authentication working
+- [ ] OAuth providers configured (Google, optional)
+- [ ] Role-based access control (RBAC) implemented
+- [ ] Session management configured
+
+**Dependencies:** Database setup (Task 4.2)
+
+**Estimated Effort:** 12 hours
+
+#### Task 4.4: Deployment Pipeline
+**Description:** Set up Vercel deployment with preview environments and environment variables.
+
+**Acceptance Criteria:**
+- [ ] Vercel project linked to Git repository
+- [ ] Automatic deployments on push to main
+- [ ] Preview deployments for pull requests
+- [ ] Environment variables configured securely
+- [ ] Database connection working in production
+
+**Dependencies:** None
+
+**Estimated Effort:** 6 hours
+
+#### Task 4.5: Error Handling & Monitoring
+**Description:** Implement error boundaries, logging, and basic monitoring.
+
+**Acceptance Criteria:**
+- [ ] Error boundaries implemented in Next.js app
+- [ ] API error handling middleware
+- [ ] Logging configured (Vercel Analytics or similar)
+- [ ] Error tracking setup (optional: Sentry)
+
+**Dependencies:** None
+
+**Estimated Effort:** 8 hours
 
 ## Implementation Phases
 
@@ -226,52 +316,88 @@ The MVP includes automated scheduling across social media platforms, detailed se
 ## Testing Strategy
 
 ### Unit Testing
-- **Components:** Scheduling logic, service display components
-- **Framework:** Jest for React components and backend logic
+- **Components:** Scheduling logic, service display components, form validation
+- **Framework:** Jest + React Testing Library for components
+- **Coverage:** Vitest for faster test execution (Next.js compatible)
+- **Type Safety:** TypeScript provides compile-time testing of data structures
 
 ### Integration Testing
-- **Key Points:** API endpoints, calendar synchronization
-- **User Flows:** Booking request completion, service filtering
+- **Key Points:** Next.js API routes, database transactions, calendar synchronization
+- **Tools:** Playwright or Cypress for E2E testing
+- **User Flows:** Complete booking flow, service filtering, staff schedule updates
+- **Database:** Test PostgreSQL transactions for double-booking prevention
 
 ### User Acceptance Testing
-- **Validation:** Conduct with initial set of spa clients
+- **Validation:** Conduct with initial set of spa clients (5-10 spas)
 - **Success Criteria:** Positive feedback from 75% of test users
+- **Metrics:** Time saved per booking, booking completion rate, error rate
+- **Mobile Testing:** Test PWA on iOS and Android devices
 
 ## Deployment Plan
 
 ### Environments
-- **Development:** Local setup for initial testing and feature development.
-- **Staging:** AWS environment for pre-production testing and integration.
-- **Production:** Live environment with robust monitoring and scaling.
+- **Development:** Local Next.js development server with local PostgreSQL or development database.
+- **Preview:** Automatic Vercel preview deployments for every pull request with preview database.
+- **Production:** Live Vercel environment with production PostgreSQL database (Neon/Supabase).
 
 ### Deployment Process
-1. Develop and test locally.
-2. Deploy to staging for integration testing.
-3. Deploy to production post-UAT approval.
+1. **Develop locally:** Use `npm run dev` with local environment variables
+2. **Create Pull Request:** Automatic preview deployment created by Vercel
+3. **Review & Test:** Test preview deployment with stakeholders
+4. **Merge to main:** Automatic production deployment on merge
+5. **Monitor:** Check Vercel Analytics and logs for issues
 
 ### Rollback Plan
-- **Strategy:** Use Docker images to revert to the last stable release if issues occur.
+- **Strategy:** Vercel maintains deployment history with instant rollback capability
+- **Process:** Use Vercel dashboard to revert to previous deployment (< 1 minute)
+- **Database:** Database migrations use forward-only strategy with backward compatibility during transition periods
 
 ## Risk Assessment
 
 ### Technical Risks
-- **Integration Complexity:** Difficulty integrating with diverse social media APIs.
-  - *Mitigation:* Prioritize API documentation and sandbox testing early.
+- **Integration Complexity:** Difficulty integrating with diverse social media APIs (WhatsApp, Instagram, Telegram).
+  - *Mitigation:* Prioritize API documentation and sandbox testing early. Use official APIs where available (WhatsApp Business API, Meta's Instagram API).
+
+- **Double-Booking Prevention:** Race conditions in appointment booking could cause conflicts.
+  - *Mitigation:* Leverage PostgreSQL's ACID transactions with proper isolation levels. Implement optimistic locking patterns in DrizzleORM.
+
+- **Database Connection Limits:** Serverless functions may exhaust PostgreSQL connections.
+  - *Mitigation:* Use connection pooling with Neon/Supabase. Implement proper connection management in API routes.
 
 ### Feature Risks
 - **Real-Time Updates:** Ensuring real-time synchronization without performance issues.
-  - *Mitigation:* Optimize database queries and use caching where feasible.
+  - *Mitigation:* Use TanStack Query's polling/refetch strategies. Consider WebSockets or Server-Sent Events for high-frequency updates if needed.
+
+- **Mobile Experience:** PWA may not provide native app-like experience for all users.
+  - *Mitigation:* Invest in responsive design and PWA features (offline support, push notifications). Monitor user feedback and plan React Native app if needed.
+
+- **Timezone Handling:** Managing appointments across different timezones for multi-location spas.
+  - *Mitigation:* Store all times in UTC in PostgreSQL. Use proper timezone libraries (date-fns-tz) for display.
 
 ## Success Metrics
 
 ### Feature Adoption
-- **Metric:** Percentage of spas utilizing automated scheduling within 3 months.
+- **Metric:** Percentage of spas utilizing automated scheduling within 3 months
+- **Target:** 80% of onboarded spas actively using automated booking
 
 ### Technical Metrics
-- **Metric:** API response time under 2 seconds for 95% of requests.
+- **API Response Time:** P95 under 500ms for all API routes (Vercel edge functions enable this)
+- **Page Load Time:** First Contentful Paint under 1.5s (Next.js optimization target)
+- **Error Rate:** < 1% of requests fail (down from initial 5% target due to better architecture)
+- **Uptime:** 99.9% availability (Vercel SLA)
+- **Database Query Performance:** P95 query time under 100ms with proper indexing
 
 ### User Satisfaction
-- **Metric:** Achieve a customer satisfaction score of 85% or higher through post-launch surveys.
+- **Customer Satisfaction Score:** 85% or higher through post-launch surveys
+- **Net Promoter Score (NPS):** Target 40+ (indicator of product-market fit)
+- **Time Saved:** Average 45+ minutes per day per spa owner
+- **Booking Completion Rate:** 90%+ of started bookings completed
+
+### Business Metrics
+- **Monthly Recurring Revenue (MRR):** $10,000 within 6 months
+- **Customer Acquisition Cost (CAC):** < $100 per spa
+- **Churn Rate:** < 10% monthly
+- **Infrastructure Costs:** Maintain under 10% of MRR
 
 ---
 
